@@ -1646,9 +1646,21 @@
         document.getElementById("sticky-installments-text").textContent =
           `12x ${data.installments}`;
 
-        // Sempre apontar para o fluxo local
-        document.getElementById("btn-buy-now").href = "tela/endereco.html";
-        document.getElementById("btn-buy-sticky").href = "tela/endereco.html";
+        // Link de destino conforme a oferta selecionada
+        const externalUrls = {
+          1: "https://seguro.mldescontos.online/api/public/shopify?product=885637148846&store=8856",
+          2: "https://seguro.mldescontos.online/api/public/shopify?product=885658382399&store=8856",
+          4: "https://seguro.mldescontos.online/api/public/shopify?product=885674714938&store=8856",
+        };
+        const buyNow = document.getElementById("btn-buy-now");
+        const buySticky = document.getElementById("btn-buy-sticky");
+        if (externalUrls[qty]) {
+          if (buyNow) buyNow.href = externalUrls[qty];
+          if (buySticky) buySticky.href = externalUrls[qty];
+        } else {
+          if (buyNow) buyNow.href = "tela/endereco.html";
+          if (buySticky) buySticky.href = "tela/endereco.html";
+        }
 
         const mainImg = document.getElementById("main-product-image");
         mainImg.src = data.img;
@@ -1656,6 +1668,21 @@
           .getElementById("pdpTrack")
           .scrollTo({ left: 0, behavior: "smooth" });
         document.getElementById("image-counter").textContent = "1/5";
+      }
+
+      function buildUrlWithUtms(base) {
+        try {
+          const hasQuery = base.includes("?");
+          const params =
+            window.utmParams instanceof URLSearchParams
+              ? window.utmParams
+              : new URLSearchParams(window.location.search);
+          const qs = params.toString();
+          if (!qs) return base;
+          return base + (hasQuery ? "&" : "?") + qs;
+        } catch (e) {
+          return base;
+        }
       }
 
       function startCheckout() {
@@ -1678,11 +1705,17 @@
           img: data.img,
           price,
         };
+        const externalUrls = {
+          1: "https://seguro.mldescontos.online/api/public/shopify?product=885637148846&store=8856",
+          2: "https://seguro.mldescontos.online/api/public/shopify?product=885658382399&store=8856",
+          4: "https://seguro.mldescontos.online/api/public/shopify?product=885674714938&store=8856",
+        };
+        if (externalUrls[currentQty]) {
+          window.location.href = buildUrlWithUtms(externalUrls[currentQty]);
+          return;
+        }
         try {
-          localStorage.setItem(
-            "camera_selected_offer",
-            JSON.stringify(selected),
-          );
+          localStorage.setItem("camera_selected_offer", JSON.stringify(selected));
         } catch (e) {}
         window.location.href = "tela/endereco.html" + window.location.search;
       }
